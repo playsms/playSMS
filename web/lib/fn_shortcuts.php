@@ -32,9 +32,9 @@ function _p($content)
 }
 
 // lib/fn_themes.php
-function _a($url, $title = '', $css_class = '', $css_id = '')
+function _a($url, $title = '', $css_class = '', $css_id = '', $target = '')
 {
-	return themes_link($url, $title, $css_class, $css_id);
+	return themes_link($url, $title, $css_class, $css_id, $target);
 }
 
 function _u($url)

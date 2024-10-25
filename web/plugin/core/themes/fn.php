@@ -259,9 +259,10 @@ function themes_search_session()
  * @param string $title link title
  * @param string $css_class link CSS class name
  * @param string $css_id link CSS ID
+ * @param string $target link target
  * @return string
  */
-function themes_link($url, $title = '', $css_class = '', $css_id = '')
+function themes_link($url, $title = '', $css_class = '', $css_id = '', $target = '')
 {
 	$ret = '';
 
@@ -273,7 +274,8 @@ function themes_link($url, $title = '', $css_class = '', $css_id = '')
 				$url,
 				$title,
 				$css_class,
-				$css_id
+				$css_id,
+				$target,
 			]
 		);
 	}
@@ -286,7 +288,8 @@ function themes_link($url, $title = '', $css_class = '', $css_id = '')
 				$url,
 				$title,
 				$css_class,
-				$css_id
+				$css_id,
+				$target,
 			]
 		);
 	}
