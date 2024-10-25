@@ -294,15 +294,17 @@ function common_hook_themes_search($search_category = [], $url = '', $keyword_co
  * @param string $title link title
  * @param string $css_class link CSS class name
  * @param string $css_id link CSS ID
+ * @param string $target link target
  * @return string
  */
-function common_hook_themes_link($url, $title = '', $css_class = '', $css_id = '')
+function common_hook_themes_link($url, $title = '', $css_class = '', $css_id = '', $target = '')
 {
 	$url = _u($url);
-	$c_title = $title ? $title : $url;
-	$css_class = $css_class ? " class='" . $css_class . "'" : '';
-	$css_id = $css_id ? " id='" . $css_id . "'" : '';
-	$ret = "<a href='" . _u($url) . "'" . $css_class . $css_id . ">" . $c_title . "</a>";
+	$title = $title ?: $url;
+	$css_class = $css_class ? " class='" . preg_replace('/[^\w\-\.]+/', '', $css_class) . "'" : '';
+	$css_id = $css_id ? " id='" . preg_replace('/[^\w\-\.]+/', '', $css_id) . "'" : '';
+	$target = $target ? " target='" . preg_replace('/[^\w\-\.]+/', '', $target) . "'" : '';
+	$ret = "<a href='" . _u($url) . "'" . $css_class . $css_id . $target . ">" . $title . "</a>";
 
 	return $ret;
 }
