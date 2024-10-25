@@ -1632,12 +1632,13 @@ function core_check_id($id, $db_table, $field_name)
  * 
  * @param string $url URL
  * @param string $method POST or GET, default POST
+ * @param string $header HTTP headers
  * @param bool $verify_peer Verify SSL certificate
  * @param bool $verify_peer_name Verify peer name
  * @param bool $allow_self_signed Allow self-signed SSL certificate
  * @return string
  */
-function core_get_contents($url, $method = 'POST', $verify_peer = false, $verify_peer_name = false, $allow_self_signed = false)
+function core_get_contents(string $url, string $method = 'POST', string $header = "Content-type: application/x-www-form-urlencoded\r\n", bool $verify_peer = false, bool $verify_peer_name = false, bool $allow_self_signed = false)
 {
 	$url = trim($url) ? $url : '';
 	$method = strtoupper(trim($method));
@@ -1645,25 +1646,38 @@ function core_get_contents($url, $method = 'POST', $verify_peer = false, $verify
 	$verify_peer = (bool) $verify_peer;
 	$verify_peer_name = (bool) $verify_peer_name;
 
+	if (preg_match('/^http:\/\/+/', $url)) {
+
+		return file_get_contents($url);
+	}
+
 	if (!($url && $parsed_url = parse_url($url))) {
 
 		return '';
 	}
 
-	$query = isset($parsed_url['query']) ? trim($parsed_url['query']) : '';
+	print_r($parsed_url);
 
-	$context = stream_context_create([
+	$query = $parsed_url['query'] ?? '';
+
+	$opts = [
 		'http' => [
 			'method' => $method,
-			'header' => "Content-type: application/x-www-form-urlencoded\r\n",
-			'content' => $query,
 		],
 		'ssl' => [
 			'verify_peer' => $verify_peer,
 			'verify_peer_name' => $verify_peer_name,
 			'allow_self_signed' => $allow_self_signed,
-		],
-	]);
+		]
+	];
+	if ($header) {
+		$opts['http']['header'] = $header;
+	}
+	if ($query) {
+		$opts['http']['content'] = $query;
+	}
+
+	$context = stream_context_create($opts);
 
 	$server_url = explode('?', $url);
 
