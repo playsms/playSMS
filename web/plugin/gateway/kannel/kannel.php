@@ -26,165 +26,146 @@ include $core_config['apps_path']['plug'] . "/gateway/kannel/config.php";
 
 switch (_OP_) {
 	case "manage":
-		if ($plugin_config['kannel']['local_time']) {
-			$selected1 = 'selected';
-		} else {
-			$selected2 = 'selected';
-		}
-		$option_local_time = "
-			<option value=1 $selected1>" . _('Yes') . "</option>
-			<option value=0 $selected2>" . _('No') . "</option>
-			";
-		
-		$admin_port = $plugin_config['kannel']['admin_port'];
-		$admin_host = $plugin_config['kannel']['sendsms_host'];
-		$admin_host = ($admin_port ? $admin_host . ':' . $admin_port : $admin_host);
-		$admin_password = $plugin_config['kannel']['admin_password'];
-		$url = 'http://' . $admin_host . '/status?password=' . urlencode($admin_password);
-		$kannel_status = @file_get_contents($url);
-		if (!$kannel_status) {
-			$kannel_status = 'Unable to access Kannel admin commands';
-		}
-		
-		$content .= _dialog() . "
-			<h2>" . _('Manage kannel') . "</h2>
-			<ul class='nav nav-tabs nav-justified' id='playsms-tab'>
-				<li class=active><a href='#tabs-configuration' data-toggle=tab>" . _('Configuration') . "</a></li>
-				<li><a href='#tabs-operational' data-toggle=tab>" . _('Operational') . "</a></li>
-			</ul>
-			<div class=tab-content>
-				<div id='tabs-configuration' class='tab-pane fade in active'>
-					<form action=index.php?app=main&inc=gateway_kannel&op=manage_save method=post>
-					" . _CSRF_FORM_ . "
-					<table class=playsms-table cellpadding=1 cellspacing=2 border=0>
-						<tbody>
-							<tr>
-								<td class=label-sizer>" . _('Gateway name') . "</td><td>kannel</td>
-							</tr>
-							<tr>
-								<td>" . _('Username') . "</td><td><input type=text maxlength=30 name=up_username value=\"" . $plugin_config['kannel']['username'] . "\"></td>
-							</tr>
-							<tr>
-								<td>" . _('Password') . "</td><td><input type=password maxlength=30 name=up_password value=\"\"> " . _hint(_('Fill to change the password')) . "</td>
-							</tr>
-							<tr>
-								<td>" . _('Module sender ID') . "</td><td><input type=text maxlength=16 name=up_module_sender value=\"" . $plugin_config['kannel']['module_sender'] . "\"> " . _hint(_('Max. 16 numeric or 11 alphanumeric char. empty to disable')) . "</td>
-							</tr>
-							<tr>
-								<td>" . _('Module timezone') . "</td><td><input type=text size=5 maxlength=5 name=up_module_timezone value=\"" . $plugin_config['kannel']['module_timezone'] . "\"> " . _hint(_('Eg: +0700 for Jakarta/Bangkok timezone')) . "</td>
-							</tr>
-							<tr>
-								<td>" . _('Bearerbox hostname or IP') . "</td><td><input type=text maxlength=250 name=up_bearerbox_host value=\"" . $plugin_config['kannel']['bearerbox_host'] . "\"> " . _hint(_('Kannel specific')) . "</td>
-							</tr>
-							<tr>
-								<td>" . _('Send SMS hostname or IP') . "</td><td><input type=text maxlength=250 name=up_sendsms_host value=\"" . $plugin_config['kannel']['sendsms_host'] . "\"> " . _hint(_('Kannel specific')) . "</td>
-							</tr>
-							<tr>
-								<td>" . _('Send SMS port') . "</td><td><input type=text maxlength=10 name=up_sendsms_port value=\"" . $plugin_config['kannel']['sendsms_port'] . "\"> " . _hint(_('Kannel specific')) . "</td>
-							</tr>
-							<tr>
-								<td>" . _('DLR mask') . "</td><td><input type=text maxlength=2 name=up_dlr_mask value=\"" . $plugin_config['kannel']['dlr_mask'] . "\"> " . _hint(_('Kannel dlr-mask option')) . "</td>
-							</tr>
-							<tr>
-								<td>" . _('Additional URL parameter') . "</td><td><input type=text maxlength=250 name=up_additional_param value=\"" . $plugin_config['kannel']['additional_param'] . "\"></td>
-							</tr>
-							<tr>
-								<td>" . _('playSMS web URL') . "</td><td><input type=text maxlength=250 name=up_playsms_web value=\"" . $plugin_config['kannel']['playsms_web'] . "\"> " . _hint(_('URL to playSMS, empty it to set it to base URL')) . "</td>
-							</tr>
-							<tr>
-								<td>" . _('Incoming SMS time is in local time') . "</td><td><select name=up_local_time>" . $option_local_time . "</select> " . _hint(_('Select no if the incoming SMS time is in UTC')) . "</td>
-							</tr>
-						</tbody>
-					</table>
-					<p><input type=submit class=button value=\"" . _('Save') . "\">
-				</div>
-				<div id='tabs-operational' class='tab-pane fade'>
-					<table class=playsms-table cellpadding=1 cellspacing=2 border=0>
-						<tbody>
-							<tr>
-								<td>" . _('Kannel admin host') . "</td><td><input type=text maxlength=250 name=up_admin_host value=\"" . $plugin_config['kannel']['admin_host'] . " \"> " . _hint(_('HTTP Kannel admin host')) . "</td>
-							</tr>
-							<tr>
-								<td>" . _('Kannel admin port') . "</td><td><input type=text maxlength=250 name=up_admin_port value=\"" . $plugin_config['kannel']['admin_port'] . "\"> " . _hint(_('HTTP Kannel admin port')) . "</td>
-							</tr>
-							<tr>
-								<td>" . _('Kannel admin password') . "</td><td><input type=password maxlength=250 name=up_admin_password value=\"\"> " . _hint(_('HTTP Kannel admin password')) . "</td>
-							</tr>
-							<tr>
-								<td>" . _('Kannel status') . "</td><td><textarea rows='20' style='height: 25em; width: 100%' disabled>" . $kannel_status . "</textarea></td>
-							</tr>
-						</tbody>
-					</table>
-					<p>
-						<input type=submit class=button value=\"" . _('Save') . "\">
-						<input type='button' value=\"" . _('Update status') . "\" class='button' onClick=\"parent.location.href='index.php?app=main&inc=gateway_kannel&op=manage_update'\">
-						<input type='button' value=\"" . _('Restart Kannel') . "\" class='button' onClick=\"parent.location.href='index.php?app=main&inc=gateway_kannel&op=manage_restart'\">
-					</p>
-					</form>
-				</div>
-				<script type=\"text/javascript\" src=\"" . $core_config['http_path']['plug'] . "/themes/common/jscss/jquery.cookie.js\"></script>
-				<script type=\"text/javascript\">
-					$(document).ready(function() {
-						$('a[data-toggle=\"tab\"]').on('shown.bs.tab', function(e){
-							//save the latest tab using a cookie:
-							$.cookie('gateway_kannel_last_tab', $(e.target).attr('href'));
-						});
-						
-						//activate latest tab, if it exists:
-						var lastTab = $.cookie('gateway_kannel_last_tab');
-						if (lastTab) {
-							$('ul.nav-tabs').children().removeClass('active');
-							$('a[href='+ lastTab +']').parents('li:first').addClass('active');
-							$('div.tab-content').children().removeClass('in active');
-							$(lastTab).addClass('in active');
-						}
-					});
-				</script>
-			</div>" . _back('index.php?app=main&inc=core_gateway&op=gateway_list');
-		_p($content);
+		$tpl = [
+			'name' => 'kannel_configuration',
+			'vars' => [
+				'Kannel send SMS URL' => _mandatory(_('kannel send SMS URL')),
+				'Callback URL' => _('Callback URL'),
+				'sms-service get-url' => _('sms-service get-url'),
+				'Callback authcode' => _('Callback authcode'),
+				'Callback server' => _('Callback server'),
+				'Kannel send SMS username' => _('Kannel send SMS username'),
+				'Kannel send SMS password' => _('Kannel send SMS password'),
+				'Module sender ID' => _('Module sender ID'),
+				'Module timezone' => _('Module timezone'),
+				'DLR mask' => _('DLR mask'),
+				'Additional parameters' => _('Additional parameters'),
+				'Save' => _('Save'),
+				'Notes' => _('Notes'),
+				'GET_URL' => '<strong>' . $plugin_config['kannel']['callback_url'] . '?mo=1&authcode=' . $plugin_config['kannel']['callback_authcode'] . '&t=%t&q=%q&a=%a&Q=%Q&smsc=%i</strong>',
+				'HINT_CALLBACK_AUTHCODE' => _hint(_('Fill with at least 16 alphanumeric authentication code to secure callback URL')),
+				'HINT_CALLBACK_SERVER' => _hint(_('Fill with server IP addresses (separated by comma) to limit access to callback URL')),
+				'HINT_FILL_PASSWORD' => _hint(_('Fill to change the password')),
+				'HINT_DLR_MASK' => sprintf(_('See: %s'), _a('https://www.kannel.org/download/1.4.5/userguide-1.4.5/userguide.html#delivery-reports', _('Kannel delivery reports guide'), '', '', '_blank')),
+				'HINT_MODULE_SENDER' => _hint(_('Max. 16 numeric or 11 alphanumeric char. empty to disable')),
+				'HINT_TIMEZONE' => _hint(_('Eg: +0700 for UTC+7 or Jakarta/Bangkok timezone')),
+				'CALLBACK_URL_ACCESSIBLE' => _('Your callback URL must be accessible from remote gateway'),
+				'CALLBACK_AUTHCODE' => sprintf(_('You have to include callback authcode as query parameter %s'), ': <strong>authcode</strong>'),
+				'CALLBACK_SERVER' => _('Your callback requests must be coming from callback server IP addresses'),
+				'REMOTE_PUSH_DLR' => _('Remote gateway or callback server will push DLR and incoming SMS to your callback URL'),
+				'BUTTON_BACK' => _back('index.php?app=main&inc=core_gateway&op=gateway_list'),
+				'gateway_name' => $plugin_config['kannel']['name'],
+				'url' => $plugin_config['kannel']['url'],
+				'callback_url' => $plugin_config['kannel']['callback_url'],
+				'callback_authcode' => $plugin_config['kannel']['callback_authcode'],
+				'callback_server' => $plugin_config['kannel']['callback_server'],
+				'username' => $plugin_config['kannel']['username'],
+				'dlr_mask' => $plugin_config['kannel']['dlr_mask'],
+				'additional_param' => $plugin_config['kannel']['additional_param'],
+				'module_sender' => $plugin_config['kannel']['module_sender'],
+				'datetime_timezone' => $plugin_config['kannel']['datetime_timezone']
+			],
+		];
+		$kannel_configuration_tpl = tpl_apply($tpl);
+
+		$admin_password = $plugin_config['kannel']['admin_password'] ?? '';
+		$admin_url = $plugin_config['kannel']['admin_url'] ?? 'http://localhost:13000';
+		$url = $admin_url . '/status?password=' . $admin_password;
+		$kannel_status = core_get_contents($url);
+		_log('status url:' . $url . ' status:[' . substr($kannel_status, 0, 30) . '...]', 3, 'kannel_manage_update');
+
+		$tpl = [
+			'name' => 'kannel_operational',
+			'vars' => [
+				'Kannel admin URL' => _('kannel admin URL'),
+				'Kannel admin password' => _('kannel admin password'),
+				'Kannel status' => _('Kannel status'),
+				'Update status' => _('Update status'),
+				'Restart Kannel' => _('Restart Kannel'),
+				'Save' => _('Save'),
+				'HINT_FILL_PASSWORD' => _hint(_('Fill to change the password')),
+				'admin_url' => $plugin_config['kannel']['admin_url'],
+				'kannel_status' => $kannel_status,
+			],
+		];
+		$kannel_operational_tpl = tpl_apply($tpl);
+
+		$tpl = [
+			'name' => 'kannel',
+			'vars' => [
+				'DIALOG_DISPLAY' => _dialog(),
+				'Manage' => _('Manage'),
+				'Gateway' => _('Gateway'),
+				'Configuration' => _('Configuration'),
+				'Operational' => _('Operational'),
+				'BUTTON_BACK' => _back('index.php?app=main&inc=core_gateway&op=gateway_list'),
+				'http_path_plug' => _HTTP_PATH_PLUG_,
+				'kannel_configuration_tpl' => $kannel_configuration_tpl,
+				'kannel_operational_tpl' => $kannel_operational_tpl,
+			],
+		];
+		_p(tpl_apply($tpl));
 		break;
-	
+
 	case "manage_save":
-		$items = array(
-			'username' => $_POST['up_username'],
-			'module_sender' => $_POST['up_module_sender'],
-			'module_timezone' => $_POST['up_module_timezone'],
-			'bearerbox_host' => $_POST['up_bearerbox_host'],
-			'sendsms_host' => $_POST['up_sendsms_host'],
-			'sendsms_port' => $_POST['up_sendsms_port'],
-			'playsms_web' => $_POST['up_playsms_web'],
-			'additional_param' => $_POST['up_additional_param'],
-			'dlr_mask' => $_POST['up_dlr_mask'],
-			'admin_host' => $_POST['up_admin_host'],
-			'admin_port' => $_POST['up_admin_port'],
-			'local_time' => $_POST['up_local_time'] 
-		);
-		if ($_POST['up_password']) {
-			$items['password'] = $_POST['up_password'];
+		$url = $_REQUEST['url'] ?: 'http://localhost:13031';
+		$callback_url = $_REQUEST['callback_url'] ?: gateway_callback_url('kannel');
+		$callback_authcode = $_REQUEST['callback_authcode'] ?? '';
+		$callback_authcode = core_sanitize_alphanumeric($callback_authcode);
+		$callback_authcode = strlen($callback_authcode) >= 16 ? $callback_authcode : bin2hex(core_get_random_string(16));
+		$callback_server = $_REQUEST['callback_server'] ?: '127.0.0.1';
+		$callback_server = preg_replace('/[^0-9a-zA-Z\.,_\-\/]+/', '', $callback_server);
+		$callback_server = preg_replace('/[,]+/', ',', $callback_server);
+		$username = $_REQUEST['username'] ?? '';
+		$password = $_REQUEST['password'] ?? '';
+		$dlr_mask = (int) $_REQUEST['dlr_mask'] ?? 27;
+		$additional_param = $_REQUEST['additional_param'] ?? '';
+		$admin_url = $_REQUEST['admin_url'] ?? 'http://localhost:13000';
+		$admin_password = $_REQUEST['admin_password'] ?? '';
+		$module_sender = $_REQUEST['module_sender'] ?? '';
+		$module_sender = core_sanitize_sender($module_sender);
+		$datetime_timezone = $_REQUEST['datetime_timezone'] ?? '';
+		if ($url) {
+			$items = [
+				'url' => $url,
+				'callback_url' => $callback_url,
+				'callback_authcode' => $callback_authcode,
+				'callback_server' => $callback_server,
+				'username' => $username,
+				'dlr_mask' => $dlr_mask,
+				'additional_param' => $additional_param,
+				'module_sender' => $module_sender,
+				'datetime_timezone' => $datetime_timezone,
+				'admin_url' => $admin_url,				
+			];
+			if ($password) {
+				$items['password'] = $password;
+			}
+			if ($admin_password) {
+				$items['admin_password'] = $admin_password;
+			}
+			if (registry_update(0, 'gateway', 'kannel', $items)) {
+				$_SESSION['dialog']['info'][] = _('Gateway module configurations has been saved');
+			} else {
+				$_SESSION['dialog']['danger'][] = _('Fail to save gateway module configurations');
+			}
+		} else {
+			$_SESSION['dialog']['danger'][] = _('All mandatory fields must be filled');
 		}
-		if ($_POST['up_admin_password']) {
-			$items['admin_password'] = $_POST['up_admin_password'];
-		}
-		registry_update(1, 'gateway', 'kannel', $items);
-		$_SESSION['dialog']['info'][] = _('Changes have been made');
 		header("Location: " . _u('index.php?app=main&inc=gateway_kannel&op=manage'));
 		exit();
-		break;
-	
+
 	case "manage_update":
 		header("Location: " . _u('index.php?app=main&inc=gateway_kannel&op=manage'));
 		exit();
-		break;
-	
+
 	case "manage_restart":
-		$admin_port = $plugin_config['kannel']['admin_port'];
-		$admin_host = $plugin_config['kannel']['bearerbox_host'];
-		$admin_host = ($admin_port ? $admin_host . ':' . $admin_port : $admin_host);
-		$admin_password = $plugin_config['kannel']['admin_password'];
-		$url = 'http://' . $admin_host . '/restart?password=' . $admin_password;
-		$restart = file_get_contents($url);
+		$admin_password = $plugin_config['kannel']['admin_password'] ?? '';
+		$admin_url = $plugin['kannel']['admin_url'] ?? 'http://localhost:13000';
+		$url = $admin_url . '/restart?password=' . $admin_password;
+		$restart = core_get_contents($url);
+		_log('restart kannel url:' . $url . ' status:' . $restart, 3, 'kannel_manage_restart');
 		$_SESSION['dialog']['info'][] = _('Restart Kannel') . ' - ' . _('Status') . ': ' . $restart;
 		header("Location: " . _u('index.php?app=main&inc=gateway_kannel&op=manage'));
 		exit();
-		break;
 }
