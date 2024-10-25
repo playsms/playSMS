@@ -85,7 +85,8 @@ function outgoing_getprefix($id)
 			$prefixes = explode(',', $row[0]['prefix']);
 			$prefixes = is_array($prefixes) ? $prefixes : [];
 			foreach ( $prefixes as $prefix ) {
-				if ($prefix = core_sanitize_numeric($prefix)) {
+				$prefix = core_sanitize_numeric($prefix);
+				if ($prefix === '0' || $prefix) {
 					$ret .= $prefix . ',';
 				}
 			}
