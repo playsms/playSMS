@@ -90,8 +90,8 @@ function kannel_hook_sendsms($smsc, $sms_sender, $sms_footer, $sms_to, $sms_msg,
 
 		$response = core_get_contents($URL);
 		if (($response == "Sent.") || ($response == "0: Accepted for delivery") || ($response == "3: Queued for later delivery")) {
-			// set pending after succesful submission, status will be updated via DLR
-			$p_status = 0;
+			// set status according to default status
+			$p_status = isset($plugin_config['kannel']['default_status']) && $plugin_config['kannel']['default_status'] ? 1 : 0;
 			dlr($smslog_id, $uid, $p_status);
 
 			_log("end smslog_id:" . $smslog_id . " p_status:" . $p_status . " response:" . $response, 3, "kannel_hook_sendsms");
@@ -100,11 +100,11 @@ function kannel_hook_sendsms($smsc, $sms_sender, $sms_footer, $sms_to, $sms_msg,
 		}
 	}
 
-	// failed
+	// set status to failed
 	$p_status = 2;
 	dlr($smslog_id, $uid, $p_status);
 
-	_log("end smslog_id:" . $smslog_id . " p_status:" . $p_status, 3, "kannel_hook_sendsms");
+	_log("end smslog_id:" . $smslog_id . " p_status:" . $p_status . " response:" . $response, 3, "kannel_hook_sendsms");
 
 	return false;
 }

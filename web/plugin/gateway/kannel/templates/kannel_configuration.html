@@ -55,6 +55,13 @@
 			<td><input type=text maxlength=255 name=additional_param value="{{ additional_param }}"></td>
 		</tr>
 		<tr>
+			<td>{{ Default SMS status }}</td>
+			<td>
+				<input type=text size=1 maxlength=1 name=default_status value="{{ default_status }}">
+				{{ HINT_DEFAULT_STATUS }}
+			</td>
+		</tr>
+		<tr>
 			<td>{{ Module sender ID }}</td>
 			<td>
 				<input type=text size=16 maxlength=16 name=module_sender value="{{ module_sender }}">

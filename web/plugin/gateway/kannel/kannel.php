@@ -40,6 +40,7 @@ switch (_OP_) {
 				'Module timezone' => _('Module timezone'),
 				'DLR mask' => _('DLR mask'),
 				'Additional parameters' => _('Additional parameters'),
+				'Default SMS status' => _('Default SMS status'),
 				'Save' => _('Save'),
 				'Notes' => _('Notes'),
 				'GET_URL' => '<strong>' . $plugin_config['kannel']['callback_url'] . '?mo=1&authcode=' . $plugin_config['kannel']['callback_authcode'] . '&t=%t&q=%q&a=%a&Q=%Q&smsc=%i</strong>',
@@ -47,6 +48,7 @@ switch (_OP_) {
 				'HINT_CALLBACK_SERVER' => _hint(_('Fill with server IP addresses (separated by comma) to limit access to callback URL')),
 				'HINT_FILL_PASSWORD' => _hint(_('Fill to change the password')),
 				'HINT_DLR_MASK' => sprintf(_('See: %s'), _a('https://www.kannel.org/download/1.4.5/userguide-1.4.5/userguide.html#delivery-reports', _('Kannel delivery reports guide'), '', '', '_blank')),
+				'HINT_DEFAULT_STATUS' => _hint(_('Default SMS status after successful submission to Kannel sets to 0 for pending and 1 for sent')),
 				'HINT_MODULE_SENDER' => _hint(_('Max. 16 numeric or 11 alphanumeric char. empty to disable')),
 				'HINT_TIMEZONE' => _hint(_('Eg: +0700 for UTC+7 or Jakarta/Bangkok timezone')),
 				'CALLBACK_URL_ACCESSIBLE' => _('Your callback URL must be accessible from remote gateway'),
@@ -62,6 +64,7 @@ switch (_OP_) {
 				'username' => $plugin_config['kannel']['username'],
 				'dlr_mask' => $plugin_config['kannel']['dlr_mask'],
 				'additional_param' => $plugin_config['kannel']['additional_param'],
+				'default_status' => (int) $plugin_config['kannel']['default_status'],
 				'module_sender' => $plugin_config['kannel']['module_sender'],
 				'datetime_timezone' => $plugin_config['kannel']['datetime_timezone']
 			],
@@ -118,8 +121,9 @@ switch (_OP_) {
 		$callback_server = preg_replace('/[,]+/', ',', $callback_server);
 		$username = $_REQUEST['username'] ?? '';
 		$password = $_REQUEST['password'] ?? '';
-		$dlr_mask = (int) $_REQUEST['dlr_mask'] ?? 27;
+		$dlr_mask = (int) ($_REQUEST['dlr_mask'] ?? 27);
 		$additional_param = $_REQUEST['additional_param'] ?? '';
+		$default_status = isset($_REQUEST['default_status']) && $_REQUEST['default_status'] ? 1 : 0;
 		$admin_url = $_REQUEST['admin_url'] ?? 'http://localhost:13000';
 		$admin_password = $_REQUEST['admin_password'] ?? '';
 		$module_sender = $_REQUEST['module_sender'] ?? '';
@@ -134,9 +138,10 @@ switch (_OP_) {
 				'username' => $username,
 				'dlr_mask' => $dlr_mask,
 				'additional_param' => $additional_param,
+				'default_status' => $default_status,
 				'module_sender' => $module_sender,
 				'datetime_timezone' => $datetime_timezone,
-				'admin_url' => $admin_url,				
+				'admin_url' => $admin_url,
 			];
 			if ($password) {
 				$items['password'] = $password;
