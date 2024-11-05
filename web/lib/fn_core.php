@@ -1497,26 +1497,26 @@ function core_print($string)
  *
  * Usage:
  * if (! core_playsmsd_timer(40)) {
- * return;
+ * 
+ *     return;
  * }
  *
  * // do below commands every 40 seconds
  * ...
  * ...
  *
- * @param int $period
- *        Period between last event and now (in second)
+ * @param int $period Period between last event and now (in second)
  * @return bool true for period passed
  */
 function core_playsmsd_timer($period = 60)
 {
-
 	// default period is 60 seconds
-	$period = ((int) $period <= 0 ? 60 : (int) $period);
+	$period = (int) $period;
+	$period = $period > 0 ? $period : 60;
 
 	$now = time();
-	$next = floor(($now / $period)) * $period + $period;
-	if (($now + 1) < $next) {
+	$next = floor($now / $period) * $period + $period;
+	if ($now + 1 < $next) {
 
 		// it is not the time yet
 		return false;
@@ -1638,7 +1638,7 @@ function core_check_id($id, $db_table, $field_name)
  * @param bool $allow_self_signed Allow self-signed SSL certificate
  * @return string
  */
-function core_get_contents(string $url, string $method = 'POST', string $header = "Content-type: application/x-www-form-urlencoded\r\n", bool $verify_peer = false, bool $verify_peer_name = false, bool $allow_self_signed = false)
+function core_get_contents(string $url, string $method = 'POST', string $header = 'Content-type: application/x-www-form-urlencoded', bool $verify_peer = false, bool $verify_peer_name = false, bool $allow_self_signed = false)
 {
 	$url = trim($url) ? $url : '';
 	$method = strtoupper(trim($method));
