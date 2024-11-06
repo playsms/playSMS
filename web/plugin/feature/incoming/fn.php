@@ -230,16 +230,23 @@ function incoming_hook_recvsms_process_after($sms_datetime, $sms_sender, $messag
 				'sms_receiver' => $sms_receiver,
 				'smsc' => $smsc
 			];
-			$json = json_encode($payload);
-			$url = str_replace('{SANDBOX_PAYLOAD}', urlencode($json), $url);
-			$url = str_replace('{SANDBOX_DATETIME}', urlencode($sms_datetime), $url);
-			$url = str_replace('{SANDBOX_SENDER}', urlencode($sms_sender), $url);
-			$url = str_replace('{SANDBOX_MESSAGE}', urlencode($message), $url);
-			$url = str_replace('{SANDBOX_RECEIVER}', urlencode($sms_receiver), $url);
-			$url = str_replace('{SANDBOX_SMSC}', urlencode($smsc), $url);
-			_log("sandbox forward to URL start url:[" . $url . "]", 3, 'incoming_hook_recvsms_process_after');
-			$response = @file_get_contents($url);
-			_log("sandbox forward to URL end response:[" . $response . "]", 3, 'incoming_hook_recvsms_process_after');
+			if ($json = json_encode($payload)) {
+				$url = str_replace('{SANDBOX_PAYLOAD}', urlencode($json), $url);
+				$url = str_replace('{SANDBOX_DATETIME}', urlencode($sms_datetime), $url);
+				$url = str_replace('{SANDBOX_SENDER}', urlencode($sms_sender), $url);
+				$url = str_replace('{SANDBOX_MESSAGE}', urlencode($message), $url);
+				$url = str_replace('{SANDBOX_RECEIVER}', urlencode($sms_receiver), $url);
+				$url = str_replace('{SANDBOX_SMSC}', urlencode($smsc), $url);
+				$url = str_replace('{PAYLOAD}', urlencode($json), $url);
+				$url = str_replace('{DATETIME}', urlencode($sms_datetime), $url);
+				$url = str_replace('{SENDER}', urlencode($sms_sender), $url);
+				$url = str_replace('{MESSAGE}', urlencode($message), $url);
+				$url = str_replace('{RECEIVER}', urlencode($sms_receiver), $url);
+				$url = str_replace('{SMSC}', urlencode($smsc), $url);
+				_log("sandbox forward to URL start url:[" . $url . "]", 3, 'incoming_hook_recvsms_process_after');
+				$response = core_get_contents($url);
+				_log("sandbox forward to URL end response:[" . $response . "]", 3, 'incoming_hook_recvsms_process_after');
+			}
 		}
 	}
 
