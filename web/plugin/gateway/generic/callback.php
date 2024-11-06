@@ -31,7 +31,7 @@ _log($_REQUEST, 3, "generic callback");
 $remote_id = isset($_REQUEST['id']) ? $_REQUEST['id'] : '';
 $status = isset($_REQUEST['message_status']) ? (int) $_REQUEST['message_status'] : 0;
 $sms_datetime = core_get_datetime();
-$sms_sender = isset($_REQUEST['from']) ? core_sanitize_mobile($_REQUEST['from']) : '';
+$sms_sender = isset($_REQUEST['from']) ? core_sanitize_sender($_REQUEST['from']) : '';
 $sms_receiver = isset($_REQUEST['to']) ? core_sanitize_mobile($_REQUEST['to']) : '';
 $message = isset($_REQUEST['message']) ? $_REQUEST['message'] : '';
 $smsc = isset($_REQUEST['smsc']) ? $_REQUEST['smsc'] : '';

@@ -92,7 +92,7 @@ if ($status && $remote_id) {
 
 $ts = isset($requests['ts']) ? (int) $requests['ts'] : 0;
 $datetime = date($ts, $datetime_format);
-$sender = isset($requests['from']) ? core_sanitize_mobile($requests['from']) : '';
+$sender = isset($requests['from']) ? core_sanitize_sender($requests['from']) : '';
 $receiver = isset($requests['to']) ? core_sanitize_mobile($requests['to']) : '';
 $message = isset($requests['message']) ? $requests['message'] : '';
 
