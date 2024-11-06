@@ -1,0 +1,64 @@
+{{ DIALOG_DISPLAY }}
+<h2>{{ Manage }} {{ gateway_name }}</h2>
+<form action=index.php?app=main&inc=gateway_playnet&op=manage_save method=post>
+	{{ CSRF_FORM }}
+	<table class=playsms-table>
+		<tbody>
+			<tr>
+				<td class=label-sizer>{{ Gateway }}</td>
+				<td>{{ gateway_name }}</td>
+			</tr>
+			<tr>
+				<td>{{ Callback URL }}</td>
+				<td>
+					<span>{{ callback_url }}</span>
+				</td>
+			</tr>
+			<tr>
+				<td>{{ Callback authcode }}</td>
+				<td>
+					<input type=text maxlength=255 name=callback_authcode value="{{ callback_authcode }}">
+					{{ HINT_CALLBACK_AUTHCODE }}
+				</td>
+			</tr>
+			<tr>
+				<td>{{ Callback server }}</td>
+				<td>
+					<input type=text maxlength=255 name=callback_server value="{{ callback_server }}">
+					{{ HINT_CALLBACK_SERVER }}
+				</td>
+			</tr>
+			<tr>
+				<td>{{ Poll interval }}</td>
+				<td><input type=text size=3 maxlength=5 name=poll_interval value="{{ poll_interval }}"></td>
+			</tr>
+			<tr>
+				<td>{{ Poll limit }}</td>
+				<td><input type=text size=7 maxlength=7 name=poll_limit value="{{ poll_limit }}"></td>
+			</tr>
+			<tr>
+				<td>{{ Module sender ID }}</td>
+				<td>
+					<input type=text size=16 maxlength=16 name=module_sender value="{{ module_sender }}">
+					{{ HINT_MODULE_SENDER }}
+				</td>
+			</tr>
+			<tr>
+				<td>{{ Module timezone }}</td>
+				<td>
+					<input type=text size=5 maxlength=5 name=datetime_timezone value="{{ datetime_timezone }}">
+					{{ HINT_TIMEZONE }}
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<p><input type=submit class=button value="{{ Save }}">
+</form>
+<p>
+	{{ Notes }}:<br />
+	- {{ REMOTE_PUSH_DLR }}<br />
+	- {{ CALLBACK_URL_ACCESSIBLE }}<br />
+	- {{ CALLBACK_AUTHCODE }}<br />
+	- {{ CALLBACK_SERVER }}<br />
+</p>
+<p>{{ BUTTON_BACK }}

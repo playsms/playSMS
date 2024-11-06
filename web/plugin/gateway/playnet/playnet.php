@@ -26,41 +26,73 @@ include $core_config['apps_path']['plug'] . "/gateway/playnet/config.php";
 
 switch (_OP_) {
 	case "manage":
-		$content = _dialog() . "
-			<h2>" . _('Manage playnet') . "</h2>
-			<form action=index.php?app=main&inc=gateway_playnet&op=manage_save method=post>
-			" . _CSRF_FORM_ . "
-			<table class=playsms-table>
-				<tbody>
-				<tr>
-					<td class=label-sizer>" . _('Gateway name') . "</td><td>playnet</td>
-				</tr>
-				<tr>
-					<td>" . _('Module sender ID') . "</td><td><input type=text maxlength=16 name=up_module_sender value=\"" . $plugin_config['playnet']['module_sender'] . "\"> " . _hint(_('Max. 16 numeric or 11 alphanumeric char. empty to disable')) . "</td>
-				</tr>
-				<tr>
-					<td>" . _('Module timezone') . "</td><td><input type=text size=5 maxlength=5 name=up_module_timezone value=\"" . $plugin_config['playnet']['module_timezone'] . "\"> " . _hint(_('Eg: +0700 for Jakarta/Bangkok timezone')) . "</td>
-				</tr>
-				</tbody>
-			</table>
-			<p><input type=submit class=button value=\"" . _('Save') . "\">
-			</form>" . _back('index.php?app=main&inc=core_gateway&op=gateway_list');
-		_p($content);
+		$tpl = [
+			'name' => 'playnet',
+			'vars' => [
+				'DIALOG_DISPLAY' => _dialog(),
+				'Manage' => _('Manage'),
+				'Gateway' => _('Gateway'),
+				'Callback URL' => _('Callback URL'),
+				'Callback authcode' => _('Callback authcode'),
+				'Callback server' => _('Callback server'),
+				'Poll interval' => _('Poll interval'),
+				'Poll limit' => _('Poll limit'),
+				'Module sender ID' => _('Module sender ID'),
+				'Module timezone' => _('Module timezone'),
+				'Save' => _('Save'),
+				'Notes' => _('Notes'),
+				'HINT_CALLBACK_URL' => _hint(_('Empty callback URL to set default')),
+				'HINT_CALLBACK_AUTHCODE' => _hint(_('Fill with at least 16 alphanumeric authentication code to secure callback URL')),
+				'HINT_CALLBACK_SERVER' => _hint(_('Fill with server IP addresses (separated by comma) to limit access to callback URL')),
+				'HINT_MODULE_SENDER' => _hint(_('Max. 16 numeric or 11 alphanumeric char. empty to disable')),
+				'HINT_TIMEZONE' => _hint(_('Eg: +0700 for UTC+7 or Jakarta/Bangkok timezone')),
+				'CALLBACK_URL_ACCESSIBLE' => _('Your callback URL must be accessible from remote gateway'),
+				'CALLBACK_AUTHCODE' => sprintf(_('You have to include callback authcode as query parameter %s'), ': <strong>authcode</strong>'),
+				'CALLBACK_SERVER' => _('Your callback requests must be coming from callback server IP addresses'),
+				'REMOTE_PUSH_DLR' => _('Remote gateway or callback server will push DLR and incoming SMS to your callback URL'),
+				'BUTTON_BACK' => _back('index.php?app=main&inc=core_gateway&op=gateway_list'),
+				'gateway_name' => $plugin_config['playnet']['name'],
+				'url' => $plugin_config['playnet']['url'],
+				'callback_url' => gateway_callback_url('playnet'),
+				'callback_authcode' => $plugin_config['playnet']['callback_authcode'],
+				'callback_server' => $plugin_config['playnet']['callback_server'],
+				'poll_interval' => (int) $plugin_config['playnet']['poll_interval'],
+				'poll_limit' => (int) $plugin_config['playnet']['poll_limit'],
+				'module_sender' => $plugin_config['playnet']['module_sender'],
+				'datetime_timezone' => $plugin_config['playnet']['datetime_timezone']
+			]
+		];
+		_p(tpl_apply($tpl));
 		break;
+
 	case "manage_save":
-		$items = array(
-			'module_sender' => $_POST['up_module_sender'],
-			'module_timezone' => $_POST['up_module_timezone'] 
-		);
-		if ($_POST['up_password']) {
-			$items['password'] = $_POST['up_password'];
+		$callback_url = gateway_callback_url('playnet');
+		$callback_authcode = isset($_REQUEST['callback_authcode']) && core_sanitize_alphanumeric($_REQUEST['callback_authcode'])
+			? core_sanitize_alphanumeric($_REQUEST['callback_authcode']) : '';
+		$callback_server = isset($_REQUEST['callback_server']) ? preg_replace('/[^0-9a-zA-Z\.,_\-\/]+/', '', trim($_REQUEST['callback_server'])) : '';
+		$callback_server = preg_replace('/[,]+/', ',', $callback_server);
+		$poll_interval = isset($_REQUEST['poll_interval']) && (int) $_REQUEST['poll_interval'] > 0 ? (int) $_REQUEST['poll_interval'] : 10;
+		$poll_limit = isset($_REQUEST['poll_limit']) && (int) $_REQUEST['poll_limit'] > 0 ? (int) $_REQUEST['poll_limit'] : 400;
+		$module_sender = core_sanitize_sender($_REQUEST['module_sender']);
+		$datetime_timezone = $_REQUEST['datetime_timezone'];
+		if ($poll_interval && $poll_limit) {
+			$items = [
+				'callback_url' => $callback_url,
+				'callback_authcode' => $callback_authcode,
+				'callback_server' => $callback_server,
+				'poll_interval' => $poll_interval,
+				'poll_limit' => $poll_limit,
+				'module_sender' => $module_sender,
+				'datetime_timezone' => $datetime_timezone
+			];
+			if (registry_update(0, 'gateway', 'playnet', $items)) {
+				$_SESSION['dialog']['info'][] = _('Gateway module configurations has been saved');
+			} else {
+				$_SESSION['dialog']['danger'][] = _('Fail to save gateway module configurations');
+			}
+		} else {
+			$_SESSION['dialog']['danger'][] = _('All mandatory fields must be filled');
 		}
-		if ($_POST['up_admin_password']) {
-			$items['admin_password'] = $_POST['up_admin_password'];
-		}
-		registry_update(0, 'gateway', 'playnet', $items);
-		$_SESSION['dialog']['info'][] = _('Changes have been made');
 		header("Location: " . _u('index.php?app=main&inc=gateway_playnet&op=manage'));
 		exit();
-		break;
 }
