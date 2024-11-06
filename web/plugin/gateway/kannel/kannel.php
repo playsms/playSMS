@@ -112,7 +112,7 @@ switch (_OP_) {
 
 	case "manage_save":
 		$url = $_REQUEST['url'] ?: 'http://localhost:13031';
-		$callback_url = $_REQUEST['callback_url'] ?: gateway_callback_url('kannel');
+		$callback_url = gateway_callback_url('kannel');
 		$callback_authcode = $_REQUEST['callback_authcode'] ?? '';
 		$callback_authcode = core_sanitize_alphanumeric($callback_authcode);
 		$callback_authcode = strlen($callback_authcode) >= 16 ? $callback_authcode : bin2hex(core_get_random_string(16));

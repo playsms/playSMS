@@ -25,7 +25,7 @@ $reg = gateway_get_registry('kannel');
 $plugin_config['kannel'] = [
 	'name' => 'kannel',
 	'url' => $reg['url'] ?: 'http://localhost:13131',
-	'callback_url' => $reg['callback_url'] ?: gateway_callback_url('kannel'),
+	'callback_url' => gateway_callback_url('kannel'),
 	'callback_authcode' => $reg['callback_authcode'] ?? '',
 	'callback_access' => $reg['callback_access'] ?: '127.0.0.1',
 	'username' => $reg['username'] ?? '',
@@ -42,7 +42,6 @@ $plugin_config['kannel'] = [
 // smsc configuration
 $plugin_config['kannel']['_smsc_config_'] = [
 	'url' => _('Kannel send SMS URL'),
-	'callback_url' => _('Callback URL'),
 	'callback_authcode' => _('Callback authcode'),
 	'callback_access' => _('Callback access'),
 	'username' => _('Username'),

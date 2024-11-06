@@ -26,7 +26,7 @@ $plugin_config['generic'] = [
 	'name' => 'generic',
 	'default_url' => 'http://example.com/?user={GENERIC_API_USERNAME}&pwd={GENERIC_API_PASSWORD}&sender={GENERIC_SENDER}&msisdn={GENERIC_TO}&message={GENERIC_MESSAGE}',
 	'url' => isset($reg['url']) && $reg['url'] ? $reg['url'] : $plugin_config['generic']['default_url'],
-	'callback_url' => isset($reg['callback_url']) && $reg['callback_url'] ? $reg['callback_url'] : '',
+	'callback_url' => gateway_callback_url('generic'),
 	'callback_authcode' => isset($reg['callback_authcode']) && $reg['callback_authcode'] ? $reg['callback_authcode'] : '',
 	'callback_access' => isset($reg['callback_access']) && $reg['callback_access'] ? $reg['callback_access'] : '',
 	'http_method' => isset($reg['http_method']) && (strtoupper($reg['http_method']) == 'GET' || strtoupper($reg['http_method']) == 'POST') ? strtoupper($reg['http_method']) : 'GET',
