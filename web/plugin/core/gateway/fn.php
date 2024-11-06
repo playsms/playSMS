@@ -446,16 +446,16 @@ function gateway_callback_auth($gateway, $authcode_field, $authcode, $smsc = '')
  * Validate if request is coming from listed callback server
  * 
  * @param string $gateway Gateway name
- * @param string $server_field Callback server field in registry
+ * @param string $callback_access_field Callback access field in registry
  * @param string $smsc SMSC
  * @return bool
  */
-function gateway_callback_server($gateway, $server_field, $smsc = '')
+function gateway_callback_access($gateway, $callback_access_field, $smsc = '')
 {
 	global $plugin_config;
 
 	$gateway = preg_replace('/[^\p{L}\p{N}\-_]+/u', '', $gateway);
-	$server_field = preg_replace('/[^\p{L}\p{N}\-_]+/u', '', $server_field);
+	$callback_access_field = preg_replace('/[^\p{L}\p{N}\-_]+/u', '', $callback_access_field);
 	$smsc = preg_replace('/[^\p{L}\p{N}\.\-_]+/u', '', $smsc);
 
 	// override $plugin_config by $plugin_config from selected SMSC when available
@@ -463,11 +463,11 @@ function gateway_callback_server($gateway, $server_field, $smsc = '')
 		$plugin_config = gateway_apply_smsc_config($smsc, $plugin_config);
 	}
 
-	$callback_server = isset($plugin_config[$gateway][$server_field]) && trim($plugin_config[$gateway][$server_field])
-		? trim($plugin_config[$gateway][$server_field]) : '';
+	$callback_access = isset($plugin_config[$gateway][$callback_access_field]) && trim($plugin_config[$gateway][$callback_access_field])
+		? trim($plugin_config[$gateway][$callback_access_field]) : '';
 
-	$callback_server = preg_replace('/[^0-9a-zA-Z\.\-_,]+/', '', $callback_server);
-	if ($servers = explode(',', $callback_server)) {
+	$callback_access = preg_replace('/[^0-9a-zA-Z\.\-_,]+/', '', $callback_access);
+	if ($servers = explode(',', $callback_access)) {
 		foreach ( $servers as $server ) {
 			if ($server && $server == _REMOTE_ADDR_) {
 

@@ -52,7 +52,7 @@ if (!gateway_callback_auth('jasmin', 'callback_authcode', $authcode, $smsc)) {
 }
 
 // validate _REQUEST must be coming from callback servers
-if (!gateway_callback_server('jasmin', 'callback_server', $smsc)) {
+if (!gateway_callback_access('jasmin', 'callback_access', $smsc)) {
 	_log("error forbidden authcode:" . $authcode . " smsc:" . $smsc . " remote_id:" . $remote_id . " from:" . $sms_sender . " to:" . $sms_receiver . " content:[" . $message . "]", 2, "jasmin callback");
 
 	ob_end_clean();

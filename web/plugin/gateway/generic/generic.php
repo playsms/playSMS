@@ -35,7 +35,7 @@ switch (_OP_) {
 				'Generic send SMS URL' => _mandatory(_('Generic send SMS URL')),
 				'Callback URL' => _('Callback URL'),
 				'Callback authcode' => _('Callback authcode'),
-				'Callback server' => _('Callback server'),
+				'Callback access' => _('Callback access'),
 				'API username' => _('API username'),
 				'API password' => _('API password'),
 				'Module sender ID' => _('Module sender ID'),
@@ -44,20 +44,20 @@ switch (_OP_) {
 				'Notes' => _('Notes'),
 				'HINT_CALLBACK_URL' => _hint(_('Empty callback URL to set default')),
 				'HINT_CALLBACK_AUTHCODE' => _hint(_('Fill with at least 16 alphanumeric authentication code to secure callback URL')),
-				'HINT_CALLBACK_SERVER' => _hint(_('Fill with server IP addresses (separated by comma) to limit access to callback URL')),
+				'HINT_CALLBACK_ACCESS' => _hint(_('Fill with IP addresses (separated by comma) to limit access to callback URL')),
 				'HINT_FILL_PASSWORD' => _hint(_('Fill to change the API password')),
 				'HINT_MODULE_SENDER' => _hint(_('Max. 16 numeric or 11 alphanumeric char. empty to disable')),
 				'HINT_TIMEZONE' => _hint(_('Eg: +0700 for UTC+7 or Jakarta/Bangkok timezone')),
-				'CALLBACK_URL_ACCESSIBLE' => _('Your callback URL must be accessible from remote gateway'),
+				'CALLBACK_URL_ACCESSIBLE' => _('Your callback URL must be accessible from IP addresses listed in callback access'),
 				'CALLBACK_AUTHCODE' => sprintf(_('You have to include callback authcode as query parameter %s'), ': <strong>authcode</strong>'),
-				'CALLBACK_SERVER' => _('Your callback requests must be coming from callback server IP addresses'),
+				'CALLBACK_ACCESS' => _('Your callback requests must be coming from IP addresses listed in callback access'),
 				'REMOTE_PUSH_DLR' => _('Remote gateway or callback server will push DLR and incoming SMS to your callback URL'),
 				'BUTTON_BACK' => _back('index.php?app=main&inc=core_gateway&op=gateway_list'),
 				'gateway_name' => $plugin_config['generic']['name'],
 				'url' => $plugin_config['generic']['url'],
 				'callback_url' => gateway_callback_url('generic'),
 				'callback_authcode' => $plugin_config['generic']['callback_authcode'],
-				'callback_server' => $plugin_config['generic']['callback_server'],
+				'callback_access' => $plugin_config['generic']['callback_access'],
 				'api_username' => $plugin_config['generic']['api_username'],
 				'module_sender' => $plugin_config['generic']['module_sender'],
 				'datetime_timezone' => $plugin_config['generic']['datetime_timezone']
@@ -71,8 +71,8 @@ switch (_OP_) {
 		$callback_url = gateway_callback_url('generic');
 		$callback_authcode = isset($_REQUEST['callback_authcode']) && core_sanitize_alphanumeric($_REQUEST['callback_authcode'])
 			? core_sanitize_alphanumeric($_REQUEST['callback_authcode']) : '';
-		$callback_server = isset($_REQUEST['callback_server']) ? preg_replace('/[^0-9a-zA-Z\.,_\-\/]+/', '', trim($_REQUEST['callback_server'])) : '';
-		$callback_server = preg_replace('/[,]+/', ',', $callback_server);
+		$callback_access = isset($_REQUEST['callback_access']) ? preg_replace('/[^0-9a-zA-Z\.,_\-\/]+/', '', trim($_REQUEST['callback_access'])) : '';
+		$callback_access = preg_replace('/[,]+/', ',', $callback_access);
 		$api_username = $_REQUEST['api_username'];
 		$api_password = $_REQUEST['api_password'];
 		$module_sender = core_sanitize_sender($_REQUEST['module_sender']);
@@ -82,7 +82,7 @@ switch (_OP_) {
 				'url' => $url,
 				'callback_url' => $callback_url,
 				'callback_authcode' => $callback_authcode,
-				'callback_server' => $callback_server,
+				'callback_access' => $callback_access,
 				'api_username' => $api_username,
 				'module_sender' => $module_sender,
 				'datetime_timezone' => $datetime_timezone

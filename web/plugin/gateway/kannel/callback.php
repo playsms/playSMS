@@ -58,7 +58,7 @@ if (!gateway_callback_auth('kannel', 'callback_authcode', $authcode, $smsc)) {
 }
 
 // validate _REQUEST must be coming from callback servers
-if (!gateway_callback_server('kannel', 'callback_server', $smsc)) {
+if (!gateway_callback_access('kannel', 'callback_access', $smsc)) {
 	_log("error forbidden authcode:" . $authcode . " dlr:" . $dlr_marker . " mo:" . $mo_marker . " smsc:" . $smsc . " smslog_id:" . $smslog_id . " type:" . $type . " uid:" . $uid . " from:" . $sms_sender . " to:" . $sms_receiver . " content:[" . $message . "]", 2, "kannel callback");
 
 	ob_end_clean();

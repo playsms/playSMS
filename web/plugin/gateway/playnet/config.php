@@ -26,7 +26,7 @@ $plugin_config['playnet'] = [
 	'name' => 'playnet',
 	'callback_url' => isset($reg['callback_url']) && $reg['callback_url'] ? $reg['callback_url'] : '',
 	'callback_authcode' => isset($reg['callback_authcode']) && $reg['callback_authcode'] ? $reg['callback_authcode'] : '',
-	'callback_server' => isset($reg['callback_server']) && $reg['callback_server'] ? $reg['callback_server'] : '',
+	'callback_access' => isset($reg['callback_access']) && $reg['callback_access'] ? $reg['callback_access'] : '',
 	'poll_interval' => (int) ($reg['poll_interval'] ?? 10),
 	'poll_limit' => (int) ($reg['poll_limit'] ?? 400),
 	'module_sender' => isset($reg['module_sender']) ? $reg['module_sender'] : '',
@@ -36,7 +36,7 @@ $plugin_config['playnet'] = [
 // smsc configuration
 $plugin_config['playnet']['_smsc_config_'] = [
 	'callback_authcode' => _('Callback authcode'),
-	'callback_server' => _('Callback server'),
+	'callback_access' => _('Callback access'),
 	'remote_on' => _('Fetch SMS from playnet server'),
 	'playnet_smsc' => _('Playnet server SMSC'),
 	'module_sender' => _('Module sender ID'),

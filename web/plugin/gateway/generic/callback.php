@@ -47,7 +47,7 @@ if (!gateway_callback_auth('generic', 'callback_authcode', $authcode, $smsc)) {
 }
 
 // validate requests must be coming from callback servers
-if (!gateway_callback_server('generic', 'callback_server', $smsc)) {
+if (!gateway_callback_access('generic', 'callback_access', $smsc)) {
 	_log("error forbidden authcode:" . $authcode . " smsc:" . $smsc . " remote_id:" . $remote_id . " from:" . $sms_sender . " to:" . $sms_receiver . " content:[" . $message . "]", 2, "generic callback");
 
 	ob_end_clean();

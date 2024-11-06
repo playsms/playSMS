@@ -33,7 +33,7 @@ switch (_OP_) {
 				'Callback URL' => _('Callback URL'),
 				'sms-service get-url' => _('sms-service get-url'),
 				'Callback authcode' => _('Callback authcode'),
-				'Callback server' => _('Callback server'),
+				'Callback access' => _('Callback access'),
 				'Kannel send SMS username' => _('Kannel send SMS username'),
 				'Kannel send SMS password' => _('Kannel send SMS password'),
 				'Module sender ID' => _('Module sender ID'),
@@ -45,22 +45,22 @@ switch (_OP_) {
 				'Notes' => _('Notes'),
 				'GET_URL' => '<strong>' . $plugin_config['kannel']['callback_url'] . '?mo=1&authcode=' . $plugin_config['kannel']['callback_authcode'] . '&t=%t&q=%q&a=%a&Q=%Q&smsc=%i</strong>',
 				'HINT_CALLBACK_AUTHCODE' => _hint(_('Fill with at least 16 alphanumeric authentication code to secure callback URL')),
-				'HINT_CALLBACK_SERVER' => _hint(_('Fill with server IP addresses (separated by comma) to limit access to callback URL')),
+				'HINT_CALLBACK_ACCESS' => _hint(_('Fill with IP addresses (separated by comma) to limit access to callback URL')),
 				'HINT_FILL_PASSWORD' => _hint(_('Fill to change the password')),
 				'HINT_DLR_MASK' => sprintf(_('See: %s'), _a('https://www.kannel.org/download/1.4.5/userguide-1.4.5/userguide.html#delivery-reports', _('Kannel delivery reports guide'), '', '', '_blank')),
 				'HINT_DEFAULT_STATUS' => _hint(_('Default SMS status after successful submission to Kannel sets to 0 for pending and 1 for sent')),
 				'HINT_MODULE_SENDER' => _hint(_('Max. 16 numeric or 11 alphanumeric char. empty to disable')),
 				'HINT_TIMEZONE' => _hint(_('Eg: +0700 for UTC+7 or Jakarta/Bangkok timezone')),
-				'CALLBACK_URL_ACCESSIBLE' => _('Your callback URL must be accessible from remote gateway'),
+				'CALLBACK_URL_ACCESSIBLE' => _('Your callback URL must be accessible from IP addresses listed in callback access'),
 				'CALLBACK_AUTHCODE' => sprintf(_('You have to include callback authcode as query parameter %s'), ': <strong>authcode</strong>'),
-				'CALLBACK_SERVER' => _('Your callback requests must be coming from callback server IP addresses'),
+				'CALLBACK_ACCESS' => _('Your callback requests must be coming from IP addresses listed in callback access'),
 				'REMOTE_PUSH_DLR' => _('Remote gateway or callback server will push DLR and incoming SMS to your callback URL'),
 				'BUTTON_BACK' => _back('index.php?app=main&inc=core_gateway&op=gateway_list'),
 				'gateway_name' => $plugin_config['kannel']['name'],
 				'url' => $plugin_config['kannel']['url'],
 				'callback_url' => $plugin_config['kannel']['callback_url'],
 				'callback_authcode' => $plugin_config['kannel']['callback_authcode'],
-				'callback_server' => $plugin_config['kannel']['callback_server'],
+				'callback_access' => $plugin_config['kannel']['callback_access'],
 				'username' => $plugin_config['kannel']['username'],
 				'dlr_mask' => $plugin_config['kannel']['dlr_mask'],
 				'additional_param' => $plugin_config['kannel']['additional_param'],
@@ -116,9 +116,9 @@ switch (_OP_) {
 		$callback_authcode = $_REQUEST['callback_authcode'] ?? '';
 		$callback_authcode = core_sanitize_alphanumeric($callback_authcode);
 		$callback_authcode = strlen($callback_authcode) >= 16 ? $callback_authcode : bin2hex(core_get_random_string(16));
-		$callback_server = $_REQUEST['callback_server'] ?: '127.0.0.1';
-		$callback_server = preg_replace('/[^0-9a-zA-Z\.,_\-\/]+/', '', $callback_server);
-		$callback_server = preg_replace('/[,]+/', ',', $callback_server);
+		$callback_access = $_REQUEST['callback_access'] ?: '127.0.0.1';
+		$callback_access = preg_replace('/[^0-9a-zA-Z\.,_\-\/]+/', '', $callback_access);
+		$callback_access = preg_replace('/[,]+/', ',', $callback_access);
 		$username = $_REQUEST['username'] ?? '';
 		$password = $_REQUEST['password'] ?? '';
 		$dlr_mask = (int) ($_REQUEST['dlr_mask'] ?? 27);
@@ -134,7 +134,7 @@ switch (_OP_) {
 				'url' => $url,
 				'callback_url' => $callback_url,
 				'callback_authcode' => $callback_authcode,
-				'callback_server' => $callback_server,
+				'callback_access' => $callback_access,
 				'username' => $username,
 				'dlr_mask' => $dlr_mask,
 				'additional_param' => $additional_param,

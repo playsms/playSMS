@@ -46,7 +46,7 @@ if (!gateway_callback_auth('playnet', 'callback_authcode', $authcode, $smsc)) {
 }
 
 // validate _REQUEST must be coming from callback servers
-if (!gateway_callback_server('playnet', 'callback_server', $smsc)) {
+if (!gateway_callback_access('playnet', 'callback_access', $smsc)) {
 	_log("error forbidden authcode:" . $authcode . " smsc:" . $smsc . " remote_id:" . $remote_id . " from:" . $sms_sender . " to:" . $sms_receiver . " content:[" . $message . "]", 2, "playnet callback");
 
 	ob_end_clean();
