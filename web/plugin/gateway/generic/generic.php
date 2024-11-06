@@ -36,6 +36,7 @@ switch (_OP_) {
 				'Callback URL' => _('Callback URL'),
 				'Callback authcode' => _('Callback authcode'),
 				'Callback access' => _('Callback access'),
+				'HTTP method' => _('HTTP method'),
 				'API username' => _('API username'),
 				'API password' => _('API password'),
 				'Module sender ID' => _('Module sender ID'),
@@ -45,6 +46,7 @@ switch (_OP_) {
 				'HINT_CALLBACK_URL' => _hint(_('Empty callback URL to set default')),
 				'HINT_CALLBACK_AUTHCODE' => _hint(_('Fill with at least 16 alphanumeric authentication code to secure callback URL')),
 				'HINT_CALLBACK_ACCESS' => _hint(_('Fill with IP addresses (separated by comma) to limit access to callback URL')),
+				'HINT_HTTP_METHOD' => _hint(_('Select which HTTP method will be used to submit requests')),
 				'HINT_FILL_PASSWORD' => _hint(_('Fill to change the API password')),
 				'HINT_MODULE_SENDER' => _hint(_('Max. 16 numeric or 11 alphanumeric char. empty to disable')),
 				'HINT_TIMEZONE' => _hint(_('Eg: +0700 for UTC+7 or Jakarta/Bangkok timezone')),
@@ -58,6 +60,7 @@ switch (_OP_) {
 				'callback_url' => gateway_callback_url('generic'),
 				'callback_authcode' => $plugin_config['generic']['callback_authcode'],
 				'callback_access' => $plugin_config['generic']['callback_access'],
+				'http_method' => $plugin_config['generic']['http_method'],
 				'api_username' => $plugin_config['generic']['api_username'],
 				'module_sender' => $plugin_config['generic']['module_sender'],
 				'datetime_timezone' => $plugin_config['generic']['datetime_timezone']
@@ -73,6 +76,8 @@ switch (_OP_) {
 			? core_sanitize_alphanumeric($_REQUEST['callback_authcode']) : '';
 		$callback_access = isset($_REQUEST['callback_access']) ? preg_replace('/[^0-9a-zA-Z\.,_\-\/]+/', '', trim($_REQUEST['callback_access'])) : '';
 		$callback_access = preg_replace('/[,]+/', ',', $callback_access);
+		$http_method = $_REQUEST['http_method'] ?? 'GET';
+		$http_method = strtoupper($http_method) == 'GET' || strtoupper($http_method) == 'POST' ? strtoupper($http_method) : 'GET';
 		$api_username = $_REQUEST['api_username'];
 		$api_password = $_REQUEST['api_password'];
 		$module_sender = core_sanitize_sender($_REQUEST['module_sender']);
@@ -83,6 +88,7 @@ switch (_OP_) {
 				'callback_url' => $callback_url,
 				'callback_authcode' => $callback_authcode,
 				'callback_access' => $callback_access,
+				'http_method' => $http_method,
 				'api_username' => $api_username,
 				'module_sender' => $module_sender,
 				'datetime_timezone' => $datetime_timezone

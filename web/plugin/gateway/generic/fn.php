@@ -82,7 +82,7 @@ function generic_hook_sendsms($smsc, $sms_sender, $sms_footer, $sms_to, $sms_msg
 		_log("send url:[" . $url . "]", 3, "generic_hook_sendsms");
 
 		// send it
-		$response = core_get_contents($url);
+		$response = core_get_contents($url, $plugin_config['generic']['http_method']);
 
 		// 14395227002806904200 SENT
 		// 0 User Not Found
