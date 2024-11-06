@@ -54,7 +54,7 @@ if (!gateway_callback_access('playnet', 'callback_access', $smsc)) {
 }
 
 switch (strtolower($action)) {
-	case 'get_outgoing':
+	case 'pull_outgoing':
 		$plugin_config = gateway_apply_smsc_config($smsc, $plugin_config);
 
 		$rows = [];
@@ -107,7 +107,7 @@ switch (strtolower($action)) {
 		echo json_encode($content);
 		exit();
 
-	case 'set_incoming':
+	case 'push_incoming':
 		if ($sms_datetime && $sms_receiver && $message) {
 			// log it
 			_log("incoming dt:" . $sms_datetime . " from:" . $sms_sender . " to:" . $sms_receiver . " message:[" . $message . "] smsc:" . $smsc, 2, "playnet callback");

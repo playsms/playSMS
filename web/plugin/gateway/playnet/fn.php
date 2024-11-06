@@ -51,7 +51,7 @@ function playnet_hook_sendsms($smsc, $sms_sender, $sms_footer, $sms_to, $sms_msg
 	// log it
 	_log("begin smsc:" . $smsc . " smslog_id:" . $smslog_id . " uid:" . $uid . " from:" . $sms_sender . " to:" . $sms_to, 3, "playnet_hook_sendsms");
 
-	if ($sms_sender && $sms_to && $sms_msg) {
+	if ($plugin_config['playnet']['playnet_server'] && $sms_sender && $sms_to && $sms_msg) {
 		$now = core_get_datetime();
 
 		$items = [
@@ -86,7 +86,7 @@ function playnet_hook_sendsms($smsc, $sms_sender, $sms_footer, $sms_to, $sms_msg
 }
 
 /**
- * Remote playnet gateway periodically query playnet server
+ * Playnet client periodically poll playnet server at poll_interval
  * 
  * @return void
  */
@@ -103,15 +103,15 @@ function playnet_hook_playsmsd()
 	foreach ( $smscs as $smsc ) {
 		$c_plugin_config = gateway_apply_smsc_config($smsc, $plugin_config);
 
-		if ((int) $c_plugin_config['playnet']['remote_on'] && $c_plugin_config['playnet']['callback_url'] && $c_plugin_config['playnet']['playnet_smsc']) {
+		if ($c_plugin_config['playnet']['playnet_client'] && $c_plugin_config['playnet']['server_callback_url'] && !$c_plugin_config['playnet']['server_pause']) {
 
-			// fetch from remote
-			$ws = $c_plugin_config['playnet']['callback_url'] . '?action=get_outgoing';
+			// pull from remote
+			$server_url = $c_plugin_config['playnet']['server_callback_url'] . '?action=pull_outgoing';
 			if (isset($c_plugin_config['playnet']['callback_authcode']) && $c_plugin_config['playnet']['callback_authcode']) {
-				$ws .= '&authcode=' . $c_plugin_config['playnet']['callback_authcode'];
+				$server_url .= '&authcode=' . $c_plugin_config['playnet']['callback_authcode'];
 			}
-			$ws .= '&smsc=' . $c_plugin_config['playnet']['playnet_smsc'];
-			$response_raw = core_get_contents($ws);
+			$server_url .= '&smsc=' . $c_plugin_config['playnet']['name'];
+			$response_raw = core_get_contents($server_url);
 			$response = json_decode($response_raw, 1);
 
 			// validate response
