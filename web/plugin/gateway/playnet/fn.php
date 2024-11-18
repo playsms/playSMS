@@ -51,29 +51,54 @@ function playnet_hook_sendsms($smsc, $sms_sender, $sms_footer, $sms_to, $sms_msg
 	// log it
 	_log("begin smsc:" . $smsc . " smslog_id:" . $smslog_id . " uid:" . $uid . " from:" . $sms_sender . " to:" . $sms_to, 3, "playnet_hook_sendsms");
 
-	if ($plugin_config['playnet']['playnet_server'] && $sms_sender && $sms_to && $sms_msg) {
-		$now = core_get_datetime();
+	if ($sms_sender && $sms_to && $sms_msg) {
+		if ($plugin_config['playnet']['playnet_server']) {
+			$now = core_get_datetime();
 
-		$items = [
-			'created' => $now,
-			'last_update' => $now,
-			'flag' => 1, // flag 1 = new SMS
-			'uid' => $uid,
-			'smsc' => $smsc,
-			'smslog_id' => $smslog_id,
-			'sender_id' => $sms_sender,
-			'sms_to' => $sms_to,
-			'message' => $sms_msg,
-			'sms_type' => $sms_type,
-			'unicode' => (int) $unicode ? 1 : 0,
-		];
-		if ($outgoing_id = dba_add(_DB_PREF_ . '_gatewayPlaynet_outgoing', $items)) {
-			$p_status = 0; // pending
-			dlr($smslog_id, $uid, $p_status);
+			$items = [
+				'created' => $now,
+				'last_update' => $now,
+				'flag' => 1, // flag 1 = new SMS
+				'uid' => $uid,
+				'smsc' => $smsc,
+				'smslog_id' => $smslog_id,
+				'sender_id' => $sms_sender,
+				'sms_to' => $sms_to,
+				'message' => $sms_msg,
+				'sms_type' => $sms_type,
+				'unicode' => (int) $unicode ? 1 : 0,
+			];
+			if ($outgoing_id = dba_add(_DB_PREF_ . '_gatewayPlaynet_outgoing', $items)) {
+				$p_status = 0; // pending
+				dlr($smslog_id, $uid, $p_status);
 
-			_log("end smslog_id:" . $smslog_id . " p_status:" . $p_status . " outgoind_id:" . $outgoing_id, 3, "playnet_hook_sendsms");
+				_log("end smslog_id:" . $smslog_id . " p_status:" . $p_status . " outgoind_id:" . $outgoing_id, 3, "playnet_hook_sendsms");
 
-			return true;
+				return true;
+			}
+		} else if ($plugin_config['playnet']['playnet_client']) {
+			// push outgoing to playnet server
+			$server_url = $plugin_config['playnet']['server_callback_url'] . '?action=push_outgoing';
+			if (isset($plugin_config['playnet']['callback_authcode']) && $plugin_config['playnet']['callback_authcode']) {
+				$server_url .= '&authcode=' . $plugin_config['playnet']['callback_authcode'];
+			}
+			$server_url .= '&sms_sender=' . urlencode($sms_sender);
+			$server_url .= '&sms_receiver=' . urlencode($sms_to);
+			$server_url .= '&message=' . urlencode($sms_msg);
+			$server_url .= '&sms_type=' . $sms_type;
+			$server_url .= '&unicode=' . (int) $unicode;
+
+			$response_raw = core_get_contents($server_url);
+			$response = json_decode($response_raw, 1);
+
+			if (isset($response) && is_array($response) && isset($response['status']) && strtoupper($response['status']) == 'OK') {
+				$p_status = 1; // sent
+				dlr($smslog_id, $uid, $p_status);
+
+				_log("end smslog_id:" . $smslog_id . " p_status:" . $p_status, 3, "playnet_hook_sendsms");
+
+				return true;
+			}
 		}
 	}
 
@@ -105,12 +130,13 @@ function playnet_hook_playsmsd()
 
 		if ($c_plugin_config['playnet']['playnet_client'] && $c_plugin_config['playnet']['server_callback_url'] && !$c_plugin_config['playnet']['server_pause']) {
 
-			// pull from remote
+			// pull outgoing from playnet server
 			$server_url = $c_plugin_config['playnet']['server_callback_url'] . '?action=pull_outgoing';
 			if (isset($c_plugin_config['playnet']['callback_authcode']) && $c_plugin_config['playnet']['callback_authcode']) {
 				$server_url .= '&authcode=' . $c_plugin_config['playnet']['callback_authcode'];
 			}
 			$server_url .= '&smsc=' . $c_plugin_config['playnet']['name'];
+
 			$response_raw = core_get_contents($server_url);
 			$response = json_decode($response_raw, 1);
 
@@ -130,7 +156,7 @@ function playnet_hook_playsmsd()
 						_log('sendsms remote_smsc:' . $remote_smsc . ' remote_smslog_id:' . $remote_smslog_id . ' remote_uid:' . $remote_uid . ' u:' . $username . ' sender_id:' . $sms_sender . ' to:' . $sms_to . ' m:[' . $message . '] unicode:' . $unicode, 3, 'playnet_hook_playsmsd');
 
 						if ($username && $sms_to && $message) {
-							sendsms_helper($username, $sms_to, $message, $sms_type, $unicode, '', 1, '', $sms_sender);
+							sendsms_helper($username, $sms_to, $message, $sms_type, $unicode, '', true, '', $sms_sender);
 						}
 					}
 				}

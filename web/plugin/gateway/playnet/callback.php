@@ -33,6 +33,8 @@ $sms_datetime = core_get_datetime();
 $sms_sender = isset($_REQUEST['sms_sender']) ? core_sanitize_sender($_REQUEST['sms_sender']) : '';
 $sms_receiver = isset($_REQUEST['sms_receiver']) ? core_sanitize_mobile($_REQUEST['sms_receiver']) : '';
 $message = $_REQUEST['message'] ?? '';
+$unicode = (int) ($_REQUEST['unicode'] ?: 0);
+$sms_type = $_REQUEST['sms_type'] ?? 'text';
 $smsc = $_REQUEST['smsc'] ?? '';
 
 $authcode = isset($_REQUEST['authcode']) && trim($_REQUEST['authcode']) ? trim($_REQUEST['authcode']) : '';
@@ -107,21 +109,51 @@ switch (strtolower($action)) {
 		echo json_encode($content);
 		exit();
 
-	case 'push_incoming':
-		if ($sms_datetime && $sms_receiver && $message) {
-			// log it
-			_log("incoming dt:" . $sms_datetime . " from:" . $sms_sender . " to:" . $sms_receiver . " message:[" . $message . "] smsc:" . $smsc, 2, "playnet callback");
+	case 'push_outgoing':
+		$username = $plugin_config['playnet']['username'] ?? '';
 
-			// save incoming SMS for further processing
-			if ($recvlog_id = recvsms($sms_datetime, $sms_sender, $message, $sms_receiver, $smsc)) {
+		if (user_username2uid($username) && $sms_to && $message) {
+			if ($returns = sendsms_helper($username, $sms_to, $message, $sms_type, $unicode, '', true, '', $sms_sender)) {
 
 				ob_end_clean();
-				echo 'OK ' . $recvlog_id;
+				echo json_encode([
+					'status' => 'OK',
+					'data' => $returns,
+				]);
 				exit();
 			}
 		}
 
 		ob_end_clean();
-		echo 'ERROR';
+		echo json_encode([
+			'status' => 'ERROR',
+			'error_string' => 'ERROR',
+		]);
+		exit();
+
+	case 'push_incoming':
+		if ($sms_datetime && $sms_receiver && $message) {
+			// log it
+			_log("push_incoming dt:" . $sms_datetime . " from:" . $sms_sender . " to:" . $sms_receiver . " message:[" . $message . "] smsc:" . $smsc, 2, "playnet callback");
+
+			// save incoming SMS for further processing
+			if ($recvlog_id = recvsms($sms_datetime, $sms_sender, $message, $sms_receiver, $smsc)) {
+
+				ob_end_clean();
+				echo json_encode([
+					'status' => 'OK',
+					'data' => [
+						'recvlog_id' => $recvlog_id,
+					]
+				]);
+				exit();
+			}
+		}
+
+		ob_end_clean();
+		echo json_encode([
+			'status' => 'ERROR',
+			'error_string' => 'ERROR',
+		]);
 		exit();
 }
